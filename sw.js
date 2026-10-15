@@ -1,5 +1,5 @@
 // Offline cache so the light works at the bedside without a connection.
-const CACHE = 'circadia-v29';
+const CACHE = 'circadia-v31';
 const ASSETS = [
   './',
   'index.html',
@@ -11,6 +11,7 @@ const ASSETS = [
   'icon-192.png',
   'icon-512.png',
   'brand-icon.png',
+  'keep-awake.mp4',
 ];
 
 self.addEventListener('install', (e) => {
@@ -31,8 +32,11 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
+        // Only cache complete responses (video requests can return partial 206 content).
+        if (res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        }
         return res;
       })
       .catch(() => caches.match(e.request, { ignoreSearch: true }))

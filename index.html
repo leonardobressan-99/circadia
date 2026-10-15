@@ -18,7 +18,7 @@
   <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=31">
 </head>
 <body data-view="light">
   <div class="ambient" aria-hidden="true"></div>
@@ -441,7 +441,10 @@
   <!-- ============ SESSION (full-screen light) ============ -->
   <div id="session" class="session" hidden>
     <div id="light" class="light"></div>
+    <!-- Fallback keep-awake: a tiny silent looping video, used only if the browser can't hold a Wake Lock. -->
+    <video id="keepAwakeVideo" class="keep-awake-video" src="keep-awake.mp4" muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
     <div class="session-ui" id="sessionUi">
+      <span class="awake-pill" id="awakePill" data-state="off" role="status" aria-live="polite"><i aria-hidden="true"></i><span id="awakeText">Screen may sleep</span></span>
       <span class="session-time" id="sessionTime">0:00</span>
       <button id="closeBtn" class="close" type="button" aria-label="End session">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
@@ -466,6 +469,6 @@
     <form method="dialog"><button class="primary" type="submit">I understand</button></form>
   </dialog>
 
-  <script src="app.js?v=29"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>

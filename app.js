@@ -498,16 +498,50 @@
   }
 
   // ---------- keep the screen on during a session ----------
-  async function requestWakeLock() {
-    if (!('wakeLock' in navigator) || !session) return;
+  // Two layers: the Screen Wake Lock API first; if it's missing or refused, a tiny silent looping
+  // video (browsers keep the screen awake while a video plays). The pill shows which one is active.
+  const keepAwakeVideo = $('#keepAwakeVideo');
+  const awakePill = $('#awakePill');
+  function setAwakeState(state) { // 'lock' | 'video' | 'off'
+    awakePill.dataset.state = state;
+    $('#awakeText').textContent = state === 'off' ? 'Screen may sleep' : 'Screen stays on';
+    awakePill.title = state === 'lock' ? 'Kept awake by the browser (Wake Lock)'
+      : state === 'video' ? 'Kept awake by a silent background video'
+      : 'The browser did not allow keeping the screen on. Keep this tab visible, or turn off Low Power Mode.';
+  }
+  // The indicator follows what the video is really doing (browsers may pause it, e.g. in a hidden tab).
+  keepAwakeVideo.addEventListener('playing', () => { if (session && !wakeLock) setAwakeState('video'); });
+  keepAwakeVideo.addEventListener('pause', () => { if (session && !wakeLock) setAwakeState('off'); });
+  function startVideoFallback() {
+    if (!session) return;
     try {
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => { wakeLock = null; });
-    } catch { /* unsupported or denied: the light still works, the screen may just sleep */ }
+      const p = keepAwakeVideo.play();
+      if (p && p.catch) p.catch(() => { if (!wakeLock) setAwakeState('off'); });
+    } catch { setAwakeState('off'); }
+  }
+  function stopVideoFallback() {
+    try { keepAwakeVideo.pause(); } catch {}
+  }
+  // Call from the Start tap so the video fallback can play (it needs a user gesture).
+  function requestWakeLock() {
+    if (!session) return;
+    if (!('wakeLock' in navigator)) { startVideoFallback(); return; }
+    navigator.wakeLock.request('screen').then((lock) => {
+      if (!session) { lock.release().catch(() => {}); return; }
+      wakeLock = lock;
+      stopVideoFallback();
+      setAwakeState('lock');
+      lock.addEventListener('release', () => {
+        if (wakeLock === lock) wakeLock = null;
+        if (session && keepAwakeVideo.paused) setAwakeState('off');
+      });
+    }).catch(() => startVideoFallback());
   }
   function releaseWakeLock() {
     if (wakeLock) wakeLock.release().catch(() => {});
     wakeLock = null;
+    stopVideoFallback();
+    setAwakeState('off');
   }
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
