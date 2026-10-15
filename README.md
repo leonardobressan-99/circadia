@@ -1,6 +1,6 @@
-# Red Light
+# Light Therapy
 
-A calming deep-red light for evening and bedside use — a mobile web app you can add to your Home Screen.
+Calming red light for the evening and bright sun-like light for the morning — a mobile web app you can add to your Home Screen.
 
 - Adjustable intensity and tone (deep red ≈ 625 nm, ember, amber)
 - Solid or slow "breathe" mode, with a sleep timer that fades out

@@ -1,5 +1,5 @@
 // Offline cache so the light works at the bedside without a connection.
-const CACHE = 'redlight-v17';
+const CACHE = 'redlight-v25';
 const ASSETS = [
   './',
   'index.html',
@@ -35,6 +35,6 @@ self.addEventListener('fetch', (e) => {
         caches.open(CACHE).then((c) => c.put(e.request, copy));
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request, { ignoreSearch: true }))
   );
 });

@@ -1,13 +1,21 @@
 (() => {
   'use strict';
 
-  // nm values are approximate dominant wavelengths of a typical phone display.
-  // Deep red lights only the red subpixel; the others mix in a little green for a warmer tone.
+  // Deep red lights only the red subpixel (≈ 625 nm on a typical display); amber mixes in a little green.
+  // Morning sun is a bright, warm daylight white (≈ 5500 K) for waking up, not for the evening.
+  // 'ember' is no longer offered but still labels old sessions in Stats.
   const TONES = {
-    deep:  { name: 'Deep red', hex: '#ff0000', nm: 625 },
-    ember: { name: 'Ember',    hex: '#ff2a00', nm: 612 },
-    amber: { name: 'Amber',    hex: '#ff5200', nm: 600 },
+    // accent: UI colour (buttons, glows) for this tone; light: lighter tint; on: text on a solid accent.
+    deep:  { name: 'Deep red',    hex: '#ff0000', spec: '≈ 625 nm', period: 'Evening light',
+             accent: '255, 68, 51',  light: '#ff8a6e', on: '#ffffff' },
+    amber: { name: 'Amber',       hex: '#ff5200', spec: '≈ 600 nm', period: 'Evening light',
+             accent: '255, 122, 26', light: '#ffab6b', on: '#ffffff' },
+    sun:   { name: 'Morning sun', hex: '#fff3df', spec: '≈ 5500 K', period: 'Morning light',
+             accent: '245, 185, 66', light: '#ffd98a', on: '#2a1a0c' },
+    ember: { name: 'Ember',       hex: '#ff2a00', spec: '≈ 612 nm', period: 'Evening light',
+             accent: '255, 68, 51',  light: '#ff8a6e', on: '#ffffff' },
   };
+  const TONE_ORDER = ['deep', 'amber', 'sun'];
   // Both modes fill the whole screen. 'glow' is no longer offered but still labels old sessions in Stats.
   const MODES = { solid: 'Solid', breathe: 'Breathe', glow: 'Glow' };
   const MODE_ORDER = ['solid', 'breathe'];
@@ -44,7 +52,7 @@
   }
 
   const settings = Object.assign({ intensity: 60, tone: 'deep', mode: 'solid', timer: 0 }, read(KEYS.settings, {}));
-  if (!TONES[settings.tone]) settings.tone = 'deep';
+  if (!TONE_ORDER.includes(settings.tone)) settings.tone = 'deep';
   if (!MODE_ORDER.includes(settings.mode)) settings.mode = 'solid';
   if (!TIMER_ORDER.includes(settings.timer)) settings.timer = 0;
   const saveSettings = () => write(KEYS.settings, settings);
@@ -61,11 +69,20 @@
     const ch = (sh) => Math.round(((pa >> sh) & 255) * k + ((pb >> sh) & 255) * (1 - k)).toString(16).padStart(2, '0');
     return `#${ch(16)}${ch(8)}${ch(0)}`;
   }
+  // True when a colour is light enough that white text on it would be hard to read.
+  function isBright(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+    const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+    return L > 0.4;
+  }
+
   // Session colour at a given level (0–1). The light, the session layer, the page background and the
   // browser bars all use this same solid colour, so Safari tints its status bar and toolbar to match.
   function setSessionLevel(level) {
     const c = scaleHex(TONES[session ? session.tone : settings.tone].hex, Math.max(0, Math.min(1, level)));
     root.style.setProperty('--session-bg', c);
+    root.classList.toggle('session-bright', isBright(c));
     setThemeColor(c);
   }
 
@@ -74,111 +91,45 @@
   // =====================================================================
   const dial = $('#dial');
   const dialSvg = dial.querySelector('svg');
-  const pointer = $('#pointer');
-  // Regulator geometry, in SVG units (viewBox 0 0 320 190).
+  const arcFill = $('#arcFillPath');
+  const arcKnob = $('#arcKnob');
+  // Regulator geometry, in SVG units (viewBox 0 0 320 190): a half-circle arc from left (0%) to right (100%).
   const CX = 160, CY = 160, R = 134;
-  const SEG_COUNT = 8;
-  const SEG_W = 26;                            // radial thickness of a segment
-  const SEG_RADIUS = 6;                        // corner rounding
-  const SEG_GAP = 5 * Math.PI / 180;           // gap between segments
-  const SEG_SPAN = (Math.PI - SEG_GAP * (SEG_COUNT - 1)) / SEG_COUNT;
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-
+  const A_START = Math.PI;
+  const A_SPAN = Math.PI;
   const polar = (r, a) => [CX + r * Math.cos(a), CY - r * Math.sin(a)];
-  function arcPath(r, a0, a1) {
-    const [x0, y0] = polar(r, a0);
-    const [x1, y1] = polar(r, a1);
-    return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
-  }
-  // A ring-shaped block between radii r1 < r2 and angles a0 > a1, with rounded corners.
-  function blockPath(r1, r2, a0, a1, c) {
-    const pt = (r, a) => polar(r, a).map((v) => v.toFixed(2)).join(' ');
-    const o = c / r2, i = c / r1;
-    return [
-      `M ${pt(r2, a0 - o)}`,
-      `A ${r2} ${r2} 0 0 1 ${pt(r2, a1 + o)}`,
-      `Q ${pt(r2, a1)} ${pt(r2 - c, a1)}`,
-      `L ${pt(r1 + c, a1)}`,
-      `Q ${pt(r1, a1)} ${pt(r1, a1 + i)}`,
-      `A ${r1} ${r1} 0 0 0 ${pt(r1, a0 - i)}`,
-      `Q ${pt(r1, a0)} ${pt(r1 + c, a0)}`,
-      `L ${pt(r2 - c, a0)}`,
-      `Q ${pt(r2, a0)} ${pt(r2, a0 - o)}`,
-      'Z',
-    ].join(' ');
-  }
-  function svgEl(tag, attrs) {
-    const el = document.createElementNS(SVG_NS, tag);
-    for (const k in attrs) el.setAttribute(k, attrs[k]);
-    return el;
-  }
 
-  // Glass segments from "Dim" (left) to "Bright" (right); each has a lit overlay whose opacity tracks intensity.
-  const segLit = [];
-  (function buildSegments() {
-    // Radial gradients centred on the arc: every segment gets the same inner→outer shading whatever its angle.
-    const r1 = R - SEG_W / 2, r2 = R + SEG_W / 2;
-    const radial = (id, stops) => {
-      const g = svgEl('radialGradient', { id, gradientUnits: 'userSpaceOnUse', cx: CX, cy: CY, r: r2 });
-      stops.forEach(([o, c]) => g.append(svgEl('stop', { offset: o, 'stop-color': c })));
-      return g;
-    };
-    const inner = (r1 / r2).toFixed(3);
-    const defs = svgEl('defs', {});
-    defs.append(
-      radial('segGlass', [[inner, 'rgba(255,255,255,0.03)'], ['0.93', 'rgba(255,255,255,0.10)'], ['1', 'rgba(255,255,255,0.16)']]),
-      radial('segRim', [[inner, 'rgba(255,255,255,0.06)'], ['1', 'rgba(255,255,255,0.32)']]),
-      radial('segLit', [[inner, 'rgba(214,24,10,0.72)'], ['0.9', 'rgba(255,82,62,0.88)'], ['1', 'rgba(255,150,130,0.95)']])
-    );
-    dialSvg.prepend(defs);
-
-    const base = $('#segments');
-    base.setAttribute('class', 'segments-base');
-    const litGroup = svgEl('g', { class: 'segments-lit' });
-    for (let i = 0; i < SEG_COUNT; i++) {
-      // Segment i runs left→right, i.e. from angle π downwards.
-      const aStart = Math.PI - i * (SEG_SPAN + SEG_GAP);
-      const aEnd = aStart - SEG_SPAN;
-      const d = blockPath(R - SEG_W / 2, R + SEG_W / 2, aStart, aEnd, SEG_RADIUS);
-      const pad = 9 / R;
-      base.append(
-        svgEl('path', { d, class: 'seg-base' }),
-        svgEl('path', { d: arcPath(r2 - 3.5, aStart - pad, aEnd + pad), class: 'seg-gloss' }),
-        svgEl('path', { d: arcPath(r1 + 4, aStart - pad, aEnd + pad), class: 'seg-shade' })
-      );
-      const lit = svgEl('path', { d, class: 'seg-lit' });
-      const shine = svgEl('path', { d: arcPath(R + SEG_W / 2 - 3.5, aStart - pad, aEnd + pad), class: 'seg-shine' });
-      litGroup.append(lit, shine);
-      segLit.push([lit, shine]);
-    }
-    base.after(litGroup);
-  })();
+  // A word for the current level, shown under the number like a readiness score.
+  const LEVEL_WORDS = [[15, 'Night light'], [35, 'Soft glow'], [60, 'Warm'], [85, 'Bright'], [101, 'Full']];
+  const levelWord = (v) => LEVEL_WORDS.find(([max]) => v < max)[1];
 
   const fmtTimer = (m) => (m ? `${m} min` : 'Off');
 
   function renderSettings() {
     const tone = TONES[settings.tone];
     root.style.setProperty('--tone', tone.hex);
+    root.style.setProperty('--accent-rgb', tone.accent);
+    root.style.setProperty('--accent-light', tone.light);
+    root.style.setProperty('--on-accent', tone.on);
     root.style.setProperty('--level', String(settings.intensity / 100));
     document.body.classList.toggle('mode-breathe', settings.mode === 'breathe');
 
-    // Regulator: light up segments up to the current value, the last one partially.
+    // Regulator: a glowing fill along the arc ending in a bright dot.
     // The arc spans 0–100%; values below the 3% floor are never reached.
     const p = settings.intensity / 100;
-    segLit.forEach(([lit, shine], i) => {
-      const f = Math.min(1, Math.max(0, p * SEG_COUNT - i));
-      lit.style.opacity = f;
-      shine.style.opacity = f;
-    });
-    const a = Math.PI * (1 - p);
-    const [px, py] = polar(R - 22, a);
-    pointer.setAttribute('transform', `translate(${px.toFixed(2)} ${py.toFixed(2)}) rotate(${(-a * 180 / Math.PI).toFixed(2)})`);
+    arcFill.style.strokeDasharray = `${(p * 100).toFixed(2)} 100`;
+    const [kx, ky] = polar(R, A_START - p * A_SPAN);
+    arcKnob.setAttribute('transform', `translate(${kx.toFixed(2)} ${ky.toFixed(2)})`);
+    // Stretch the fill gradient so it is brightest exactly at the dot.
+    $('#arcFill').setAttribute('x2', Math.max(kx, 30).toFixed(2));
+    $('#levelWord').textContent = levelWord(settings.intensity);
     dial.setAttribute('aria-valuenow', String(settings.intensity));
     dial.setAttribute('aria-valuetext', `${settings.intensity}%`);
     $('#intensityOut').textContent = settings.intensity;
-    $('#nmChip').textContent = `≈ ${tone.nm} nm`;
+    $('#nmChip').textContent = tone.spec;
 
-    $('#toneName').textContent = `${tone.name} · ≈ ${tone.nm} nm`;
+    $('#toneName').textContent = `${tone.name} · ${tone.spec}`;
+    $('#heroEyebrow').textContent = tone.period;
     updateChrome();
     $$('[data-tone]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.tone === settings.tone)));
     $('#modeOut').textContent = MODES[settings.mode];
@@ -364,11 +315,54 @@
     // With the sheet open the screen is dimmed by its backdrop (black at 45%), so dim the top layer to match.
     const top = document.body.classList.contains('sheet-open') ? scaleHex(lit, 0.55) : lit;
     root.style.setProperty('--lit-hex', lit);
+    root.classList.toggle('hero-bright', isBright(lit));
     root.style.setProperty('--top-light', top);
     setThemeColor(onLight ? top : DEFAULT_THEME);
   }
 
+  // ---------- start/end transition: the light grows out of (and back into) the play button ----------
+  // Uses a CSS transition on clip-path (Safari animates this reliably; Web Animations clip-path it does not).
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const DUR_IN = 750, DUR_OUT = 600;
+  let animTimer = 0;
+  function revealShapes() {
+    const b = $('#startBtn').getBoundingClientRect();
+    const x = b.left + b.width / 2, y = b.top + b.height / 2;
+    // Radius that covers the whole screen from the button's centre.
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 40;
+    return { small: `circle(${b.width / 2}px at ${x}px ${y}px)`, big: `circle(${r}px at ${x}px ${y}px)` };
+  }
+  function setClip(v) {
+    sessionEl.style.clipPath = v;
+    sessionEl.style.webkitClipPath = v;
+  }
+  function animateSession(direction, done) {
+    clearTimeout(animTimer);
+    const inward = direction === 'in';
+    const duration = inward ? DUR_IN : DUR_OUT;
+    const { small, big } = revealShapes();
+    sessionEl.style.transition = 'none';
+    if (reduceMotion.matches) {
+      setClip('none');
+      sessionEl.style.opacity = inward ? '0' : '1';
+    } else {
+      setClip(inward ? small : big);
+    }
+    void sessionEl.offsetWidth; // commit the start state before transitioning
+    const ease = inward ? 'cubic-bezier(0.22, 1, 0.36, 1)' : 'cubic-bezier(0.55, 0, 0.75, 0.2)';
+    sessionEl.style.transition = `clip-path ${duration}ms ${ease}, -webkit-clip-path ${duration}ms ${ease}, opacity ${duration}ms ${ease}`;
+    if (!reduceMotion.matches) setClip(inward ? big : small);
+    else sessionEl.style.opacity = inward ? '1' : '0';
+    animTimer = setTimeout(() => {
+      sessionEl.style.transition = '';
+      if (inward) { setClip(''); sessionEl.style.opacity = ''; }
+      if (done) done();
+      if (!inward) { setClip(''); sessionEl.style.opacity = ''; }
+    }, duration + 60);
+  }
+
   function startSession() {
+    if (session) return;
     session = {
       start: Date.now(),
       end: settings.timer ? Date.now() + settings.timer * 60 * 1000 : 0,
@@ -382,7 +376,8 @@
     done.hidden = true;
     sessionUi.hidden = false;
     sessionEl.hidden = false;
-    root.classList.add('in-session');
+    // Keep the home screen intact around the growing circle; switch the page to session mode once covered.
+    animateSession('in', () => { if (session) root.classList.add('in-session'); });
 
     enterFullscreen();
     requestWakeLock();
@@ -440,16 +435,23 @@
     sessionUi.hidden = true;
   }
 
+  let closing = false;
   function closeSession() {
+    if (closing) return;
+    closing = true;
     if (session) recordSession(Date.now());
     teardownSession();
     releaseWakeLock();
     exitFullscreen();
-    sessionEl.hidden = true;
-    done.hidden = true;
+    renderStats();
+    // Restore the home screen underneath, then shrink the light back into the play button.
     root.classList.remove('in-session');
     updateChrome();
-    renderStats();
+    animateSession('out', () => {
+      sessionEl.hidden = true;
+      done.hidden = true;
+      closing = false;
+    });
   }
 
   // Session controls fade after a few seconds and come back on any touch.

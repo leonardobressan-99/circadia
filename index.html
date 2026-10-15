@@ -8,25 +8,25 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Red Light">
-  <meta name="description" content="A calming deep-red light for evening and bedside use.">
-  <title>Red Light</title>
+  <meta name="apple-mobile-web-app-title" content="Light Therapy">
+  <meta name="description" content="Calming red light for the evening and bright sun-like light for the morning.">
+  <title>Light Therapy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="icon-180.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body data-view="light">
   <div class="ambient" aria-hidden="true"></div>
   <!-- The Light screen's top section is a fixed layer: Safari tints its status-bar area from the topmost fixed
        element at the top edge, so the light colour reaches behind the clock while the bottom bar stays dark. -->
   <header class="top-light">
-    <p class="eyebrow eyebrow-light">Evening light</p>
-    <h1 class="brand">Red Light</h1>
+    <p class="eyebrow eyebrow-light" id="heroEyebrow">Evening light</p>
+    <h1 class="brand">Light Therapy</h1>
     <p class="hero-sub" id="toneName">Deep red · ≈ 625 nm</p>
   </header>
 
@@ -42,14 +42,33 @@
         <div class="dial" id="dial" role="slider" tabindex="0"
              aria-label="Intensity" aria-valuemin="3" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60%">
           <svg viewBox="0 0 320 190" aria-hidden="true">
-            <g id="segments"></g>
-            <path id="pointer" class="pointer" d="M 0 0 L -13 -7 Q -15 0 -13 7 Z"/>
-            <text x="26" y="186" class="dial-end" text-anchor="middle">Dim</text>
-            <text x="294" y="186" class="dial-end" text-anchor="middle">Bright</text>
+            <defs>
+              <!-- Fill brightens toward its end, like a light trail -->
+              <linearGradient id="arcFill" gradientUnits="userSpaceOnUse" x1="26" y1="0" x2="294" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="1"/>
+              </linearGradient>
+              <filter id="arcGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <radialGradient id="knobHalo">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+                <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <path class="arc-track" d="M 26 160 A 134 134 0 0 1 294 160"/>
+            <path class="arc-fill" id="arcFillPath" d="M 26 160 A 134 134 0 0 1 294 160" pathLength="100" filter="url(#arcGlow)"/>
+            <g id="arcKnob">
+              <circle r="20" fill="url(#knobHalo)"/>
+              <circle r="8" class="knob-core"/>
+            </g>
           </svg>
           <div class="dial-readout">
+            <div class="sub">Intensity</div>
             <div class="big"><span id="intensityOut">60</span><span class="pct">%</span></div>
-            <div class="sub">Intensity <span class="sub-dot">·</span> <span id="nmChip">≈ 625 nm</span></div>
+            <div class="status"><span id="levelWord">Soft glow</span> <span class="sub-dot">·</span> <span id="nmChip">≈ 625 nm</span></div>
           </div>
         </div>
       </div>
@@ -57,8 +76,8 @@
       <div class="home-bottom">
         <div class="tones glass" role="radiogroup" aria-label="Tone">
           <button role="radio" data-tone="deep" type="button" aria-label="Deep red, about 625 nanometres"><i style="--c:#ff0000"></i><span>Deep</span></button>
-          <button role="radio" data-tone="ember" type="button" aria-label="Ember, about 612 nanometres"><i style="--c:#ff2a00"></i><span>Ember</span></button>
           <button role="radio" data-tone="amber" type="button" aria-label="Amber, about 600 nanometres"><i style="--c:#ff5200"></i><span>Amber</span></button>
+          <button role="radio" data-tone="sun" type="button" aria-label="Morning sun, warm daylight about 5500 kelvin"><i style="--c:#ffd27a"></i><span>Sun</span></button>
         </div>
 
         <div class="controls-row">
@@ -90,16 +109,109 @@
     <section id="view-info" class="view" aria-labelledby="infoTitle">
       <header class="view-head">
         <p class="eyebrow">Guide</p>
-        <h1 id="infoTitle">About red light</h1>
+        <h1 id="infoTitle">About the light</h1>
       </header>
 
       <div class="card glass notice-card">
         <div class="notice-icon" aria-hidden="true">!</div>
         <div>
           <strong>Not a medical device</strong>
-          <p>Red Light is for comfort and ambience. A phone screen is far too weak for red light therapy, and the app does not diagnose, treat or prevent any condition.</p>
+          <p>Light Therapy is for comfort, ambience and daily routine. A phone screen is far too weak to replace a red light panel or a 10,000 lux light box, and the app does not diagnose, treat or prevent any condition.</p>
         </div>
       </div>
+
+      <!-- The three lights -->
+      <article class="card glass lights-card">
+        <h2>Three lights, two moments</h2>
+        <p>Light is a signal for your body clock. Bright, white light in the morning says "day"; warm, dim red light in the evening says "wind down".</p>
+        <div class="light-types">
+          <div class="light-type"><i style="--c:#ff0000"></i><b>Deep red</b><small>≈ 625 nm · evening</small><span>The gentlest light for your body clock and night vision. Best for the last hour before sleep and at night.</span></div>
+          <div class="light-type"><i style="--c:#ff5200"></i><b>Amber</b><small>≈ 600 nm · evening</small><span>A warmer, slightly brighter glow for reading or relaxing, still very low in blue.</span></div>
+          <div class="light-type"><i style="--c:#ffd27a"></i><b>Morning sun</b><small>≈ 5500 K · morning</small><span>Bright, daylight-coloured light to help you feel awake and start your routine.</span></div>
+        </div>
+      </article>
+
+      <!-- Morning light -->
+      <article class="card glass">
+        <h2>Why light in the morning helps</h2>
+        <p>Bright light soon after waking is the strongest cue that keeps your body clock in time. It lowers leftover melatonin and boosts alertness, and over days it helps you feel sleepy at a regular time at night.</p>
+        <div class="facts">
+          <div class="fact"><b>Best timing</b><span>Within the first hour after waking, for 10–30 minutes, with the screen at full brightness and close to your face's eye level (not staring into it).</span></div>
+          <div class="fact"><b>Real daylight is stronger</b><span>Outdoors, even on a cloudy day, gives 1,000–10,000+ lux. A phone screen gives a few hundred at most, so a walk outside or a window seat is even better.</span></div>
+          <div class="fact pen-you"><b>Not a light box</b><span>Clinical bright-light therapy uses about 10,000 lux light boxes. This screen is a gentle wake-up cue, not a treatment for seasonal or sleep disorders.</span></div>
+        </div>
+      </article>
+
+      <!-- Infographic: red & near-infrared penetration depth -->
+      <article class="card glass pen-card">
+        <p class="eyebrow">Red &amp; near-infrared spectrum</p>
+        <h2>Penetration depth &amp; cellular impact</h2>
+        <p>Longer wavelengths travel deeper before they are absorbed. Visible red light mostly stays in the skin, while invisible near-infrared reaches deeper tissue. This is why therapy devices pair 630–660 nm with 810–850 nm.</p>
+        <figure class="figure">
+<svg viewBox="0 0 360 430" class="pen-chart" role="img" aria-labelledby="penTitle penDesc">
+<title id="penTitle">How deep red and near-infrared light penetrate the skin</title>
+<desc id="penDesc">Approximate penetration depth by wavelength: 590 nm about 0.3 mm, 630 nm about 0.5 mm, 660 nm about 1 mm, 670 nm about 1.4 mm, 760 nm about 2 mm, 810 nm about 2.3 mm, 830 nm about 2.7 mm, 850 nm about 3.5 mm, 940 nm over 4 mm. Longer wavelengths reach deeper.</desc>
+<defs><filter id="beamGlow" x="-200%" y="-10%" width="500%" height="120%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="depthLegend" x1="0" x2="1"><stop offset="0" stop-color="#ffb020"/><stop offset=".35" stop-color="#ff3322"/><stop offset=".7" stop-color="#ff5a8c"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+<linearGradient id="skinShade" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></linearGradient></defs>
+<path class="pen-bracket" d="M102.0 26 V20 H209.8 V26"/>
+<text class="pen-group" x="155.9" y="14" text-anchor="middle">VISIBLE RED</text>
+<path class="pen-bracket" d="M219.0 26 V20 H356.0 V26"/>
+<text class="pen-group" x="287.5" y="14" text-anchor="middle">NEAR-INFRARED · INVISIBLE</text>
+<text class="pen-nm" x="112.0" y="52" text-anchor="middle">590</text>
+<text class="pen-nm" x="141.2" y="52" text-anchor="middle">630</text>
+<text class="pen-nm" x="170.5" y="52" text-anchor="middle">660</text>
+<text class="pen-nm" x="199.8" y="52" text-anchor="middle">670</text>
+<text class="pen-nm" x="229.0" y="52" text-anchor="middle">760</text>
+<text class="pen-nm" x="258.2" y="52" text-anchor="middle">810</text>
+<text class="pen-nm" x="287.5" y="52" text-anchor="middle">830</text>
+<text class="pen-nm" x="316.8" y="52" text-anchor="middle">850</text>
+<text class="pen-nm" x="346.0" y="52" text-anchor="middle">940</text>
+<text class="pen-unit" x="98" y="52" text-anchor="end">nm</text>
+<rect x="92" y="104" width="268" height="30" fill="#5b1f1b"/>
+<text class="pen-layer" x="0" y="117.0">Epidermis</text>
+<text class="pen-range" x="0" y="129.0">0–0.1 mm</text>
+<rect x="92" y="134" width="268" height="48" fill="#4b1714"/>
+<text class="pen-layer" x="0" y="156.0">Upper dermis</text>
+<text class="pen-range" x="0" y="168.0">0.1–0.5 mm</text>
+<line class="pen-sep" x1="0" x2="360" y1="134" y2="134"/>
+<rect x="92" y="182" width="268" height="58" fill="#3e1210"/>
+<text class="pen-layer" x="0" y="209.0">Mid dermis</text>
+<text class="pen-range" x="0" y="221.0">0.5–1.5 mm</text>
+<line class="pen-sep" x1="0" x2="360" y1="182" y2="182"/>
+<rect x="92" y="240" width="268" height="66" fill="#330d0c"/>
+<text class="pen-layer" x="0" y="271.0">Deep dermis</text>
+<text class="pen-range" x="0" y="283.0">1.5–3 mm</text>
+<line class="pen-sep" x1="0" x2="360" y1="240" y2="240"/>
+<rect x="92" y="306" width="268" height="74" fill="#290a09"/>
+<text class="pen-layer" x="0" y="341.0">Subcutaneous</text>
+<text class="pen-range" x="0" y="353.0">> 3 mm</text>
+<line class="pen-sep" x1="0" x2="360" y1="306" y2="306"/>
+<rect x="92" y="104" width="268" height="276" fill="url(#skinShade)"/>
+<text class="pen-head" x="0" y="92">LIGHT PENETRATION INTO SKIN</text>
+<g filter="url(#beamGlow)"><line x1="112.0" x2="112.0" y1="64" y2="158.0" stroke="#ffb020" stroke-width="2" stroke-linecap="round"/><circle cx="112.0" cy="64" r="3" fill="#ffb020"/><circle cx="112.0" cy="158.0" r="3.6" fill="#ffb020"/></g>
+<g filter="url(#beamGlow)"><line x1="141.2" x2="141.2" y1="64" y2="184.9" stroke="#ff6a1a" stroke-width="2" stroke-linecap="round"/><circle cx="141.2" cy="64" r="3" fill="#ff6a1a"/><circle cx="141.2" cy="184.9" r="3.6" fill="#ff6a1a"/></g>
+<g filter="url(#beamGlow)"><line x1="170.5" x2="170.5" y1="64" y2="211.0" stroke="#ff3322" stroke-width="2" stroke-linecap="round"/><circle cx="170.5" cy="64" r="3" fill="#ff3322"/><circle cx="170.5" cy="211.0" r="3.6" fill="#ff3322"/></g>
+<g filter="url(#beamGlow)"><line x1="199.8" x2="199.8" y1="64" y2="231.3" stroke="#ff2236" stroke-width="2" stroke-linecap="round"/><circle cx="199.8" cy="64" r="3" fill="#ff2236"/><circle cx="199.8" cy="231.3" r="3.6" fill="#ff2236"/></g>
+<g filter="url(#beamGlow)"><line x1="229.0" x2="229.0" y1="64" y2="257.6" stroke="#ff2a58" stroke-width="2" stroke-linecap="round"/><circle cx="229.0" cy="64" r="3" fill="#ff2a58"/><circle cx="229.0" cy="257.6" r="3.6" fill="#ff2a58"/></g>
+<g filter="url(#beamGlow)"><line x1="258.2" x2="258.2" y1="64" y2="275.2" stroke="#ff3f72" stroke-width="2" stroke-linecap="round"/><circle cx="258.2" cy="64" r="3" fill="#ff3f72"/><circle cx="258.2" cy="275.2" r="3.6" fill="#ff3f72"/></g>
+<g filter="url(#beamGlow)"><line x1="287.5" x2="287.5" y1="64" y2="290.6" stroke="#ff5a8c" stroke-width="2" stroke-linecap="round"/><circle cx="287.5" cy="64" r="3" fill="#ff5a8c"/><circle cx="287.5" cy="290.6" r="3.6" fill="#ff5a8c"/></g>
+<g filter="url(#beamGlow)"><line x1="316.8" x2="316.8" y1="64" y2="324.5" stroke="#ff8db0" stroke-width="2" stroke-linecap="round"/><circle cx="316.8" cy="64" r="3" fill="#ff8db0"/><circle cx="316.8" cy="324.5" r="3.6" fill="#ff8db0"/></g>
+<g filter="url(#beamGlow)"><line x1="346.0" x2="346.0" y1="64" y2="354.1" stroke="#ffe2ea" stroke-width="2" stroke-linecap="round"/><circle cx="346.0" cy="64" r="3" fill="#ffe2ea"/><circle cx="346.0" cy="354.1" r="3.6" fill="#ffe2ea"/></g>
+<text class="pen-legend" x="0" y="406">SHALLOWER</text>
+<rect x="78" y="400" width="210" height="5" rx="2.5" fill="url(#depthLegend)"/>
+<text class="pen-legend" x="360" y="406" text-anchor="end">DEEPER</text>
+<text class="pen-legend-sub" x="0" y="422">Surface &amp; upper layers</text>
+<text class="pen-legend-sub" x="360" y="422" text-anchor="end">Muscles, joints &amp; deeper tissue</text>
+</svg>
+        </figure>
+        <div class="facts pen-facts">
+          <div class="fact"><b>Red · 630–670 nm</b><span>Absorbed in the outer few millimetres. Studied for skin, collagen and wound healing.</span></div>
+          <div class="fact"><b>Near-infrared · 810–850 nm</b><span>Passes deeper. Studied for muscles, joints and recovery.</span></div>
+          <div class="fact pen-you"><b>Your phone screen · ≈ 600–630 nm</b><span>Visible red only, about 100× weaker than a therapy panel and with no near-infrared, so it gives gentle ambient light, not these doses.</span></div>
+        </div>
+        <p class="fine">Depths are approximate and illustrative; they vary with skin type, power and study method.</p>
+      </article>
 
       <article class="card glass">
         <h2>Why red is gentler at night</h2>
@@ -169,7 +281,8 @@
       <article class="card glass">
         <h2>Good for</h2>
         <ul class="icon-list">
-          <li><span class="ic" aria-hidden="true">☾</span><div><b>Winding down</b><span>A soft, warm light for the last hour before sleep.</span></div></li>
+          <li><span class="ic" aria-hidden="true">☀</span><div><b>Morning routine</b><span>Sun mode at full brightness while you stretch, wash or have breakfast.</span></div></li>
+          <li><span class="ic" aria-hidden="true">☾</span><div><b>Winding down</b><span>A soft, warm red light for the last hour before sleep.</span></div></li>
           <li><span class="ic" aria-hidden="true">✦</span><div><b>Getting around at night</b><span>See your way without ruining your night vision or fully waking up.</span></div></li>
           <li><span class="ic" aria-hidden="true">◐</span><div><b>Bedside &amp; nursery</b><span>Night feeds or checking on someone without bright light.</span></div></li>
           <li><span class="ic" aria-hidden="true">≋</span><div><b>Calm breathing</b><span>Breathe mode rises and falls about 6 times a minute, a relaxed breathing pace.</span></div></li>
@@ -179,9 +292,10 @@
       <article class="card glass">
         <h2>How to use it</h2>
         <ol class="steps">
-          <li><span>1</span><div><b>Lower your screen brightness</b>Dim is enough in a dark room. Turn off Night Shift and True Tone for the purest red.</div></li>
-          <li><span>2</span><div><b>Place it 0.5–1 m away</b>Point it at a wall or the ceiling for an even, indirect glow.</div></li>
-          <li><span>3</span><div><b>Set a sleep timer</b>The light fades out over the last minute, and your session is saved to Stats.</div></li>
+          <li><span>1</span><div><b>Pick the light for the moment</b>Sun in the morning, at full screen brightness. Deep red or Amber in the evening, with the screen dimmed.</div></li>
+          <li><span>2</span><div><b>Turn off Night Shift and True Tone</b>They tint the screen and change the colour you chose.</div></li>
+          <li><span>3</span><div><b>Place it 0.5–1 m away</b>Point it at a wall or the ceiling for an even, indirect glow.</div></li>
+          <li><span>4</span><div><b>Set a timer</b>The light fades out over the last minute, and your session is saved to Stats.</div></li>
         </ol>
       </article>
 
@@ -192,6 +306,7 @@
           <li>Don't stare into the screen up close for long periods.</li>
           <li>Avoid Breathe mode and very low brightness if you're sensitive to flicker or have photosensitive epilepsy.</li>
           <li>Don't fall asleep with a bright screen beside your face. Use the timer.</li>
+          <li>Don't use Sun mode in the evening: bright white light at night delays sleep.</li>
           <li>Don't expect it to fix ongoing sleep problems. Talk to a doctor if they last.</li>
         </ul>
       </article>
@@ -203,6 +318,8 @@
           <li>Lucas et al., Trends in Neurosciences 2014: measuring and using light in the melanopsin age.</li>
           <li>CIE S 026:2018: melanopic light sensitivity.</li>
           <li>Hamblin, AIMS Biophysics 2017: mechanisms of photobiomodulation.</li>
+          <li>Blume, Garbazza &amp; Spitschan, Somnologie 2019: effects of light on human circadian rhythms, sleep and mood.</li>
+          <li>Terman &amp; Terman, CNS Spectrums 2005: light therapy for seasonal and non-seasonal depression (10,000 lux).</li>
         </ul>
       </article>
     </section>
@@ -261,7 +378,7 @@
     <nav class="tabbar glass" aria-label="Sections">
       <div class="nav-brand">
         <img src="brand-icon.png" alt="" width="44" height="44">
-        <span>Red Light</span>
+        <span>Light Therapy</span>
       </div>
       <div class="nav-items">
         <button class="tab is-active" data-view="light" type="button" aria-label="Light">
@@ -340,15 +457,15 @@
   <!-- ============ FIRST RUN ============ -->
   <dialog id="about" class="sheet" aria-labelledby="aboutTitle">
     <h2 id="aboutTitle">Before you start</h2>
-    <p>Red Light turns your screen into a soft, deep-red lamp for winding down, reading by the bed or getting around at night.</p>
+    <p>Light Therapy turns your screen into a soft deep-red lamp for the evening, and a bright sun-like light for your morning routine.</p>
     <div class="notice">
       <strong>Not a medical device.</strong>
       It's for comfort and ambience only. A phone screen is far too weak for red light therapy.
     </div>
-    <p class="fine">Tip: for a light that also covers the clock and battery bar at the top, add Red Light to your Home Screen (Share → Add to Home Screen).</p>
+    <p class="fine">Tip: for a light that also covers the clock and battery bar at the top, add Light Therapy to your Home Screen (Share → Add to Home Screen).</p>
     <form method="dialog"><button class="primary" type="submit">I understand</button></form>
   </dialog>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
-  "name": "Red Light",
-  "short_name": "Red Light",
-  "description": "A calming deep-red light for evening and bedside use. Not a medical device.",
+  "name": "Light Therapy",
+  "short_name": "Light Therapy",
+  "description": "Calming red light for the evening and bright sun-like light for the morning. Not a medical device.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
