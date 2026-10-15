@@ -1,6 +1,6 @@
 {
-  "name": "Light Therapy",
-  "short_name": "Light Therapy",
+  "name": "Circadia",
+  "short_name": "Circadia",
   "description": "Calming red light for the evening and bright sun-like light for the morning. Not a medical device.",
   "start_url": "./",
   "scope": "./",

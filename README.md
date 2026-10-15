@@ -1,4 +1,4 @@
-# Light Therapy
+# Circadia
 
 Calming red light for the evening and bright sun-like light for the morning — a mobile web app you can add to your Home Screen.
 
