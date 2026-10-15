@@ -18,7 +18,7 @@
   <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body data-view="light">
   <div class="ambient" aria-hidden="true"></div>
@@ -26,8 +26,8 @@
        element at the top edge, so the light colour reaches behind the clock while the bottom bar stays dark. -->
   <header class="top-light">
     <p class="eyebrow eyebrow-light" id="heroEyebrow">Evening light</p>
-    <h1 class="brand">Circadia</h1>
-    <p class="hero-sub" id="toneName">Deep red · ≈ 625 nm</p>
+    <h1 class="brand" id="toneTitle">Deep red</h1>
+    <p class="hero-sub" id="toneSpec">≈ 625 nm</p>
   </header>
 
   <div class="app">
@@ -132,7 +132,7 @@
       </article>
 
       <!-- Morning light -->
-      <article class="card glass">
+      <article class="card glass g-morning">
         <h2>Why light in the morning helps</h2>
         <p>Bright light soon after waking is the strongest cue that keeps your body clock in time. It lowers leftover melatonin and boosts alertness, and over days it helps you feel sleepy at a regular time at night.</p>
         <div class="facts">
@@ -213,7 +213,7 @@
         <p class="fine">Depths are approximate and illustrative; they vary with skin type, power and study method.</p>
       </article>
 
-      <article class="card glass">
+      <article class="card glass g-red">
         <h2>Why red is gentler at night</h2>
         <p>Your eyes have a special light sensor (melanopsin) that tells your body clock it's daytime and holds back melatonin, the sleep hormone. It reacts most to <em>blue</em> light around 480 nm and barely at all to deep red.</p>
         <figure class="figure">
@@ -257,7 +257,7 @@
         </div>
       </article>
 
-      <article class="card glass">
+      <article class="card glass g-screen">
         <h2>Screen light vs. therapy devices</h2>
         <p>Red light <em>therapy</em> (photobiomodulation) uses dedicated LED panels at 630–660 nm and invisible near-infrared at 810–850 nm, with much more power. A screen gives gentle ambient light, not a treatment dose.</p>
         <figure class="figure">
@@ -278,7 +278,7 @@
         </figure>
       </article>
 
-      <article class="card glass">
+      <article class="card glass g-good">
         <h2>Good for</h2>
         <ul class="icon-list">
           <li><span class="ic" aria-hidden="true">☀</span><div><b>Morning routine</b><span>Sun mode at full brightness while you stretch, wash or have breakfast.</span></div></li>
@@ -289,7 +289,7 @@
         </ul>
       </article>
 
-      <article class="card glass">
+      <article class="card glass g-how">
         <h2>How to use it</h2>
         <ol class="steps">
           <li><span>1</span><div><b>Pick the light for the moment</b>Sun in the morning, at full screen brightness. Deep red or Amber in the evening, with the screen dimmed.</div></li>
@@ -299,7 +299,7 @@
         </ol>
       </article>
 
-      <article class="card glass">
+      <article class="card glass g-dont">
         <h2>What not to do</h2>
         <ul class="dont-list">
           <li>Don't use it as a treatment or instead of medical care.</li>
@@ -466,6 +466,6 @@
     <form method="dialog"><button class="primary" type="submit">I understand</button></form>
   </dialog>
 
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>

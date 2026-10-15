@@ -1,5 +1,5 @@
 // Offline cache so the light works at the bedside without a connection.
-const CACHE = 'circadia-v26';
+const CACHE = 'circadia-v29';
 const ASSETS = [
   './',
   'index.html',

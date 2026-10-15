@@ -164,10 +164,11 @@ body[data-view="light"] { overflow: hidden; overscroll-behavior: none; }
 .eyebrow-light { color: rgba(255, 240, 236, 0.75); }
 .brand {
   margin: 0;
-  font-size: 30px;
+  font-size: clamp(28px, 8.5vw, 34px);
   font-weight: 300;
   letter-spacing: 0.02em;
   text-transform: uppercase; /* thin uppercase, like "LIGHT IS A NUTRIENT" */
+  white-space: nowrap;
   line-height: 1.1;
   color: #fff6f3;
 }
@@ -983,14 +984,45 @@ body[data-view="light"] { overflow: hidden; overscroll-behavior: none; }
   .timer-chips { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .timer-chips button { height: 64px; }
 
-  /* ---------- Info: two-column guide ---------- */
+  /* ---------- Info: structured guide grid ---------- */
   #view-info.is-active {
     max-width: 1180px;
-    columns: 2 420px;
-    column-gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-areas:
+      "head    head    head    head    head    head"
+      "notice  notice  notice  notice  notice  notice"
+      "lights  lights  lights  lights  lights  lights"
+      "morning morning morning red     red     red"
+      "pen     pen     pen     pen     pen     pen"
+      "good    good    how     how     dont    dont"
+      "screen  screen  screen  sources sources sources";
+    gap: 20px;
+    align-items: stretch;
   }
-  #view-info .view-head, #view-info .notice-card { column-span: all; }
-  #view-info .card { break-inside: avoid; margin-bottom: 20px; }
+  #view-info > * { margin: 0; }
+  #view-info .view-head { grid-area: head; margin-bottom: 4px; }
+  #view-info .notice-card { grid-area: notice; }
+  #view-info .lights-card { grid-area: lights; }
+  #view-info .g-morning { grid-area: morning; }
+  #view-info .g-red { grid-area: red; }
+  #view-info .pen-card { grid-area: pen; }
+  #view-info .g-good { grid-area: good; }
+  #view-info .g-how { grid-area: how; }
+  #view-info .g-dont { grid-area: dont; }
+  #view-info .g-screen { grid-area: screen; }
+  #view-info .sources { grid-area: sources; }
+
+  /* Penetration card: text and facts on the left, compact chart on the right */
+  #view-info .pen-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    column-gap: 36px;
+    align-content: start;
+  }
+  #view-info .pen-card > * { grid-column: 1; }
+  #view-info .pen-card > .figure { grid-column: 2; grid-row: 1 / span 6; margin: 0; align-self: center; }
+  #view-info .pen-card .facts { grid-template-columns: 1fr; }
 
   /* ---------- Stats: dashboard grid ---------- */
   #view-stats.is-active {
@@ -1072,7 +1104,5 @@ html.session-bright .close {
 .light-type small { font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
 /* Desktop: keep the penetration infographic within one column so it stays compact */
 @media (min-width: 1024px) {
-  #view-info .lights-card { column-span: all; }
   #view-info .light-types { grid-template-columns: repeat(3, 1fr); }
-  #view-info .pen-card .pen-chart { max-width: 420px; margin: 0 auto; }
 }

@@ -128,7 +128,8 @@
     $('#intensityOut').textContent = settings.intensity;
     $('#nmChip').textContent = tone.spec;
 
-    $('#toneName').textContent = `${tone.name} · ${tone.spec}`;
+    $('#toneTitle').textContent = tone.name;
+    $('#toneSpec').textContent = tone.spec;
     $('#heroEyebrow').textContent = tone.period;
     updateChrome();
     $$('[data-tone]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.tone === settings.tone)));
