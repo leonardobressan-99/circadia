@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0c">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Red Light">
+  <meta name="description" content="A calming deep-red light for evening and bedside use.">
+  <title>Red Light</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-view="light">
+  <div class="ambient" aria-hidden="true"></div>
+  <!-- The Light screen's top section is a fixed layer: Safari tints its status-bar area from the topmost fixed
+       element at the top edge, so the light colour reaches behind the clock while the bottom bar stays dark. -->
+  <header class="top-light">
+    <p class="eyebrow eyebrow-light">Evening light</p>
+    <h1 class="brand">Red Light</h1>
+    <p class="hero-sub" id="toneName">Deep red · ≈ 625 nm</p>
+  </header>
+
+  <div class="app">
+
+    <!-- ============ LIGHT ============ -->
+    <section id="view-light" class="view is-active" aria-label="Light">
+      <!-- Solid light colour on top; it fades into the dark exactly where the regulator begins. -->
+      <!-- Spacer: reserves the room taken by the fixed .top-light header. -->
+      <div class="hero" aria-hidden="true"></div>
+
+      <div class="dial-zone">
+        <div class="dial" id="dial" role="slider" tabindex="0"
+             aria-label="Intensity" aria-valuemin="3" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60%">
+          <svg viewBox="0 0 320 190" aria-hidden="true">
+            <g id="segments"></g>
+            <path id="pointer" class="pointer" d="M 0 0 L -13 -7 Q -15 0 -13 7 Z"/>
+            <text x="26" y="186" class="dial-end" text-anchor="middle">Dim</text>
+            <text x="294" y="186" class="dial-end" text-anchor="middle">Bright</text>
+          </svg>
+          <div class="dial-readout">
+            <div class="big"><span id="intensityOut">60</span><span class="pct">%</span></div>
+            <div class="sub">Intensity <span class="sub-dot">·</span> <span id="nmChip">≈ 625 nm</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-bottom">
+        <div class="tones glass" role="radiogroup" aria-label="Tone">
+          <button role="radio" data-tone="deep" type="button" aria-label="Deep red, about 625 nanometres"><i style="--c:#ff0000"></i><span>Deep</span></button>
+          <button role="radio" data-tone="ember" type="button" aria-label="Ember, about 612 nanometres"><i style="--c:#ff2a00"></i><span>Ember</span></button>
+          <button role="radio" data-tone="amber" type="button" aria-label="Amber, about 600 nanometres"><i style="--c:#ff5200"></i><span>Amber</span></button>
+        </div>
+
+        <div class="controls-row">
+          <button id="modeBtn" class="ctl" type="button" aria-label="Mode and timer settings" aria-haspopup="dialog">
+            <span class="ctl-icon glass">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3"/></svg>
+            </span>
+            <span class="ctl-label">Mode</span>
+            <b id="modeOut">Solid</b>
+          </button>
+
+          <button id="startBtn" class="play" type="button" aria-label="Start light">
+            <span class="play-ring"></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.8v10.4c0 .6.7 1 1.2.6l7.6-5.2a.7.7 0 0 0 0-1.2l-7.6-5.2c-.5-.4-1.2 0-1.2.6z"/></svg>
+          </button>
+
+          <button id="timerBtn" class="ctl" type="button" aria-label="Mode and timer settings" aria-haspopup="dialog">
+            <span class="ctl-icon glass">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.2 1.6M10 3h4"/></svg>
+            </span>
+            <span class="ctl-label">Timer</span>
+            <b id="timerOut">Off</b>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INFO ============ -->
+    <section id="view-info" class="view" aria-labelledby="infoTitle">
+      <header class="view-head">
+        <p class="eyebrow">Guide</p>
+        <h1 id="infoTitle">About red light</h1>
+      </header>
+
+      <div class="card glass notice-card">
+        <div class="notice-icon" aria-hidden="true">!</div>
+        <div>
+          <strong>Not a medical device</strong>
+          <p>Red Light is for comfort and ambience. A phone screen is far too weak for red light therapy, and the app does not diagnose, treat or prevent any condition.</p>
+        </div>
+      </div>
+
+      <article class="card glass">
+        <h2>Why red is gentler at night</h2>
+        <p>Your eyes have a special light sensor (melanopsin) that tells your body clock it's daytime and holds back melatonin, the sleep hormone. It reacts most to <em>blue</em> light around 480 nm and barely at all to deep red.</p>
+        <figure class="figure">
+          <svg viewBox="0 0 340 170" class="spectrum-chart" role="img" aria-labelledby="specTitle specDesc">
+            <title id="specTitle">Melatonin sensitivity across the light spectrum</title>
+            <desc id="specDesc">Sensitivity peaks at about 480 nm in the blue and is close to zero above 600 nm, where this app's light sits.</desc>
+            <defs>
+              <linearGradient id="vis" x1="0" x2="1">
+                <stop offset="0" stop-color="#7a3cff"/>
+                <stop offset=".17" stop-color="#3a5bff"/>
+                <stop offset=".27" stop-color="#00b7ff"/>
+                <stop offset=".4" stop-color="#21e06a"/>
+                <stop offset=".57" stop-color="#d8f000"/>
+                <stop offset=".67" stop-color="#ff9a00"/>
+                <stop offset=".77" stop-color="#ff2a00"/>
+                <stop offset="1" stop-color="#8a0000"/>
+              </linearGradient>
+              <linearGradient id="curveFill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".16"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- x = 20 + (nm - 400): 400 nm -> 20, 700 nm -> 320 -->
+            <line x1="20" y1="120" x2="320" y2="120" class="axis"/>
+            <path class="curve-fill" d="M20,120 C60,118 70,26 100,24 C130,26 160,100 220,117 L320,120 Z"/>
+            <path class="curve" d="M20,120 C60,118 70,26 100,24 C130,26 160,100 220,117 L320,120"/>
+            <rect x="220" y="22" width="30" height="98" class="band" rx="4"/>
+            <text x="235" y="16" class="t t-accent" text-anchor="middle">This app</text>
+            <text x="100" y="16" class="t" text-anchor="middle">peak ≈ 480 nm</text>
+            <rect x="20" y="128" width="300" height="8" rx="4" fill="url(#vis)"/>
+            <text x="20" y="152" class="t">400</text>
+            <text x="120" y="152" class="t" text-anchor="middle">500</text>
+            <text x="220" y="152" class="t" text-anchor="middle">600</text>
+            <text x="320" y="152" class="t" text-anchor="end">700 nm</text>
+            <text x="20" y="166" class="t t-dim">Curve = how strongly light suppresses melatonin</text>
+          </svg>
+        </figure>
+        <div class="facts">
+          <div class="fact"><b>Melatonin</b><span>Deep red affects your body clock far less than white or blue light at the same brightness.</span></div>
+          <div class="fact"><b>Night vision</b><span>The rods in your eyes barely respond to red, so your eyes stay adjusted to the dark. That's why astronomers and pilots use red light.</span></div>
+        </div>
+      </article>
+
+      <article class="card glass">
+        <h2>Screen light vs. therapy devices</h2>
+        <p>Red light <em>therapy</em> (photobiomodulation) uses dedicated LED panels at 630–660 nm and invisible near-infrared at 810–850 nm, with much more power. A screen gives gentle ambient light, not a treatment dose.</p>
+        <figure class="figure">
+          <div class="power" role="img" aria-label="Power density on a log scale: phone screen about 0.3 milliwatts per square centimetre, therapy panel 20 to 100.">
+            <div class="power-row">
+              <span class="power-name">Phone screen</span>
+              <div class="power-track"><div class="power-bar" style="--w:16%"></div></div>
+              <span class="power-val">≈ 0.3</span>
+            </div>
+            <div class="power-row">
+              <span class="power-name">Therapy panel</span>
+              <div class="power-track"><div class="power-bar strong" style="--from:77%;--w:23%"></div></div>
+              <span class="power-val">20–100</span>
+            </div>
+            <div class="power-axis"><span>0.1</span><span>1</span><span>10</span><span>100</span></div>
+            <p class="fine">Power density in mW/cm² (log scale), screen touching the skin. A phone screen is roughly 100× weaker and gives off no near-infrared.</p>
+          </div>
+        </figure>
+      </article>
+
+      <article class="card glass">
+        <h2>Good for</h2>
+        <ul class="icon-list">
+          <li><span class="ic" aria-hidden="true">☾</span><div><b>Winding down</b><span>A soft, warm light for the last hour before sleep.</span></div></li>
+          <li><span class="ic" aria-hidden="true">✦</span><div><b>Getting around at night</b><span>See your way without ruining your night vision or fully waking up.</span></div></li>
+          <li><span class="ic" aria-hidden="true">◐</span><div><b>Bedside &amp; nursery</b><span>Night feeds or checking on someone without bright light.</span></div></li>
+          <li><span class="ic" aria-hidden="true">≋</span><div><b>Calm breathing</b><span>Breathe mode rises and falls about 6 times a minute, a relaxed breathing pace.</span></div></li>
+        </ul>
+      </article>
+
+      <article class="card glass">
+        <h2>How to use it</h2>
+        <ol class="steps">
+          <li><span>1</span><div><b>Lower your screen brightness</b>Dim is enough in a dark room. Turn off Night Shift and True Tone for the purest red.</div></li>
+          <li><span>2</span><div><b>Place it 0.5–1 m away</b>Point it at a wall or the ceiling for an even, indirect glow.</div></li>
+          <li><span>3</span><div><b>Set a sleep timer</b>The light fades out over the last minute, and your session is saved to Stats.</div></li>
+        </ol>
+      </article>
+
+      <article class="card glass">
+        <h2>What not to do</h2>
+        <ul class="dont-list">
+          <li>Don't use it as a treatment or instead of medical care.</li>
+          <li>Don't stare into the screen up close for long periods.</li>
+          <li>Avoid Breathe mode and very low brightness if you're sensitive to flicker or have photosensitive epilepsy.</li>
+          <li>Don't fall asleep with a bright screen beside your face. Use the timer.</li>
+          <li>Don't expect it to fix ongoing sleep problems. Talk to a doctor if they last.</li>
+        </ul>
+      </article>
+
+      <article class="card glass sources">
+        <h2>Sources</h2>
+        <ul>
+          <li>Brainard et al., J. Neuroscience 2001: action spectrum for melatonin suppression.</li>
+          <li>Lucas et al., Trends in Neurosciences 2014: measuring and using light in the melanopsin age.</li>
+          <li>CIE S 026:2018: melanopic light sensitivity.</li>
+          <li>Hamblin, AIMS Biophysics 2017: mechanisms of photobiomodulation.</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section id="view-stats" class="view" aria-labelledby="statsTitle">
+      <header class="view-head">
+        <p class="eyebrow">Your history</p>
+        <h1 id="statsTitle">Statistics</h1>
+      </header>
+
+      <article class="card glass st-week">
+        <div class="card-row">
+          <h2>This week</h2>
+          <span class="muted" id="weekRange"></span>
+        </div>
+        <div class="week-dots" id="weekDots"></div>
+      </article>
+
+      <div class="tiles st-tiles">
+        <div class="tile glass"><span class="tile-label">Total time</span><span class="tile-value" id="stTotal">0m</span></div>
+        <div class="tile glass"><span class="tile-label">Sessions</span><span class="tile-value" id="stCount">0</span></div>
+        <div class="tile glass"><span class="tile-label">Average</span><span class="tile-value" id="stAvg">0m</span></div>
+        <div class="tile glass"><span class="tile-label">Day streak</span><span class="tile-value" id="stStreak">0</span></div>
+      </div>
+
+      <article class="card glass st-chart">
+        <div class="card-row">
+          <h2>Last 7 days</h2>
+          <span class="value" id="stWeek">0m</span>
+        </div>
+        <div class="week" id="weekChart" role="img" aria-label="Minutes of light per day for the last 7 days"></div>
+        <div class="chart-tip" id="chartTip" hidden></div>
+      </article>
+
+      <article class="card glass st-fav">
+        <h2>Favourites</h2>
+        <div class="fav">
+          <div><span class="tile-label">Tone</span><b id="stFavTone">–</b></div>
+          <div><span class="tile-label">Mode</span><b id="stFavMode">–</b></div>
+          <div><span class="tile-label">Longest</span><b id="stLongest">–</b></div>
+        </div>
+      </article>
+
+      <article class="card glass st-recent">
+        <h2>Recent sessions</h2>
+        <ul class="sessions" id="sessionList"></ul>
+        <p class="empty" id="emptyState">No sessions yet. Press <b>play</b> on the Light tab to begin.</p>
+      </article>
+
+      <button id="clearBtn" class="ghost" type="button">Clear history</button>
+    </section>
+
+    <!-- ============ TAB BAR ============ -->
+    <!-- Bottom pill on phones; a labelled sidebar on desktop. -->
+    <nav class="tabbar glass" aria-label="Sections">
+      <div class="nav-brand">
+        <img src="brand-icon.png" alt="" width="44" height="44">
+        <span>Red Light</span>
+      </div>
+      <div class="nav-items">
+        <button class="tab is-active" data-view="light" type="button" aria-label="Light">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.4.3.6.8.6 1.3V16h6v-.9c0-.5.2-1 .6-1.3A6 6 0 0 0 12 3z"/></svg>
+          <span class="tab-label">Light</span>
+        </button>
+        <button class="tab" data-view="info" type="button" aria-label="Info">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.4"/></svg>
+          <span class="tab-label">Guide</span>
+        </button>
+        <button class="tab" data-view="stats" type="button" aria-label="Statistics">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>
+          <span class="tab-label">Statistics</span>
+        </button>
+      </div>
+      <p class="nav-foot">Not a medical device. For comfort and ambience only.</p>
+    </nav>
+  </div>
+
+  <!-- ============ MODE & TIMER SHEET ============ -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <section class="bottom-sheet" id="optionsSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true" tabindex="-1" inert>
+    <div class="sheet-grab" id="sheetGrab">
+      <div class="sheet-handle"></div>
+      <h2 id="sheetTitle">Session settings</h2>
+    </div>
+
+    <div class="sheet-section">
+      <span class="sheet-label">Mode</span>
+      <div class="mode-cards" role="radiogroup" aria-label="Mode">
+        <button role="radio" data-mode="solid" type="button">
+          <span class="mode-ico mode-ico-solid" aria-hidden="true"></span>
+          <b>Solid</b>
+          <small>Steady, even light</small>
+        </button>
+        <button role="radio" data-mode="breathe" type="button">
+          <span class="mode-ico mode-ico-breathe" aria-hidden="true"></span>
+          <b>Breathe</b>
+          <small>Slow rise and fall, about 6 per minute</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="sheet-section">
+      <span class="sheet-label">Sleep timer</span>
+      <div class="timer-chips" role="radiogroup" aria-label="Sleep timer">
+        <button role="radio" data-timer="0" type="button">Off</button>
+        <button role="radio" data-timer="10" type="button">10<small>min</small></button>
+        <button role="radio" data-timer="15" type="button">15<small>min</small></button>
+        <button role="radio" data-timer="20" type="button">20<small>min</small></button>
+        <button role="radio" data-timer="25" type="button">25<small>min</small></button>
+        <button role="radio" data-timer="30" type="button">30<small>min</small></button>
+      </div>
+      <p class="fine">The light fades out gently over the final minute.</p>
+    </div>
+
+    <button class="primary" id="sheetDone" type="button">Done</button>
+  </section>
+
+  <!-- ============ SESSION (full-screen light) ============ -->
+  <div id="session" class="session" hidden>
+    <div id="light" class="light"></div>
+    <div class="session-ui" id="sessionUi">
+      <span class="session-time" id="sessionTime">0:00</span>
+      <button id="closeBtn" class="close" type="button" aria-label="End session">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+      </button>
+    </div>
+    <div class="done" id="done" hidden>
+      <p class="done-title">Goodnight</p>
+      <p class="done-sub" id="doneSub">Session saved</p>
+      <button id="doneBtn" class="ghost" type="button">Done</button>
+    </div>
+  </div>
+
+  <!-- ============ FIRST RUN ============ -->
+  <dialog id="about" class="sheet" aria-labelledby="aboutTitle">
+    <h2 id="aboutTitle">Before you start</h2>
+    <p>Red Light turns your screen into a soft, deep-red lamp for winding down, reading by the bed or getting around at night.</p>
+    <div class="notice">
+      <strong>Not a medical device.</strong>
+      It's for comfort and ambience only. A phone screen is far too weak for red light therapy.
+    </div>
+    <p class="fine">Tip: for a light that also covers the clock and battery bar at the top, add Red Light to your Home Screen (Share → Add to Home Screen).</p>
+    <form method="dialog"><button class="primary" type="submit">I understand</button></form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
