@@ -647,7 +647,13 @@
           <span class="s-date"></span>
           <span class="s-meta"></span>
         </span>
-        <span class="s-dur"></span>`;
+        <span class="s-dur"></span>
+        <button class="s-del" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10.5 11v5M13.5 11v5"/></svg>
+          <span class="s-del-label">Delete</span>
+        </button>`;
+      li.querySelector('.s-del').dataset.start = String(x.s);
+      li.querySelector('.s-del').setAttribute('aria-label', `Delete session from ${fmtDay(x.s)}, ${fmtTime(x.s)}`);
       li.querySelector('.s-date').textContent = `${fmtDay(x.s)}, ${fmtTime(x.s)}`;
       li.querySelector('.s-meta').textContent = `${tone.name} · ${MODES[x.m] || ''} · ${x.i}%`;
       li.querySelector('.s-dur').textContent = fmtDuration(x.d);
@@ -656,6 +662,33 @@
     $('#emptyState').hidden = list.length > 0;
     $('#clearBtn').hidden = list.length === 0;
   }
+
+  // Delete a single session: first tap asks for confirmation, a second tap within 3 s deletes it.
+  let armedDelete = null, armedTimer = 0;
+  function disarmDelete() {
+    clearTimeout(armedTimer);
+    if (armedDelete) armedDelete.classList.remove('is-armed');
+    armedDelete = null;
+  }
+  $('#sessionList').addEventListener('click', (e) => {
+    const btn = e.target.closest('.s-del');
+    if (!btn) return;
+    if (armedDelete !== btn) {
+      disarmDelete();
+      armedDelete = btn;
+      btn.classList.add('is-armed');
+      armedTimer = setTimeout(disarmDelete, 3000);
+      return;
+    }
+    disarmDelete();
+    const start = Number(btn.dataset.start);
+    const li = btn.closest('li');
+    li.classList.add('is-removing');
+    setTimeout(() => {
+      write(KEYS.sessions, read(KEYS.sessions, []).filter((x) => x.s !== start));
+      renderStats();
+    }, 250);
+  });
 
   function renderWeek(list) {
     const chart = $('#weekChart');

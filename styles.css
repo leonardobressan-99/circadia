@@ -624,6 +624,30 @@ body[data-view="light"] { overflow: hidden; overscroll-behavior: none; }
 .sessions .s-date { display: block; font-size: 15px; font-weight: 500; }
 .sessions .s-meta { display: block; font-size: 12px; color: var(--ink-3); }
 .sessions .s-dur { font-size: 16px; font-weight: 300; font-variant-numeric: tabular-nums; }
+.sessions li { transition: opacity 0.25s ease, transform 0.25s ease; }
+.sessions li.is-removing { opacity: 0; transform: translateX(16px); }
+.s-del {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  margin-right: -8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.s-del svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.s-del:hover { color: var(--ink-2); background: rgba(255, 255, 255, 0.05); }
+.s-del-label { display: none; font-size: 12px; font-weight: 500; }
+.s-del.is-armed { color: #fff; background: #d93a2b; border-color: #d93a2b; padding: 0 12px; }
+.s-del.is-armed .s-del-label { display: inline; }
 .empty { margin: 0; font-size: 14px; color: var(--ink-3); }
 .empty b { color: var(--ink-2); }
 
@@ -993,6 +1017,7 @@ body[data-view="light"] { overflow: hidden; overscroll-behavior: none; }
       "head    head    head    head    head    head"
       "notice  notice  notice  notice  notice  notice"
       "lights  lights  lights  lights  lights  lights"
+      "units   units   units   benefit benefit benefit"
       "morning morning morning red     red     red"
       "pen     pen     pen     pen     pen     pen"
       "good    good    how     how     dont    dont"
@@ -1004,6 +1029,8 @@ body[data-view="light"] { overflow: hidden; overscroll-behavior: none; }
   #view-info .view-head { grid-area: head; margin-bottom: 4px; }
   #view-info .notice-card { grid-area: notice; }
   #view-info .lights-card { grid-area: lights; }
+  #view-info .g-units { grid-area: units; }
+  #view-info .g-benefits { grid-area: benefit; }
   #view-info .g-morning { grid-area: morning; }
   #view-info .g-red { grid-area: red; }
   #view-info .pen-card { grid-area: pen; }
@@ -1135,3 +1162,44 @@ html.session-bright .close {
 .awake-pill i { width: 7px; height: 7px; border-radius: 50%; background: #7dd87d; box-shadow: 0 0 6px #7dd87d; }
 .awake-pill[data-state="off"] i { background: #ffb020; box-shadow: 0 0 6px #ffb020; }
 html.session-bright .awake-pill { background: rgba(0, 0, 0, 0.06); color: rgba(40, 24, 10, 0.75); }
+
+/* ================= Guide keeps fixed colours (does not follow the selected light) ================= */
+body[data-view="info"] {
+  --accent-rgb: 255, 68, 51;
+  --accent: rgb(255, 68, 51);
+  --accent-soft: rgba(255, 68, 51, 0.14);
+  --accent-light: #ff8a6e;
+  --on-accent: #ffffff;
+  --tone: #ff0000;
+}
+
+/* ================= Units (nm / K) card ================= */
+.units-figure { margin: 6px 0 16px; }
+.units-bar {
+  position: relative;
+  height: 12px;
+  margin-top: 38px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #7a3cff 0%, #3a5bff 13%, #00b7ff 27%, #21e06a 40%, #d8f000 57%, #ff9a00 67%, #ff2a00 80%, #8a0000 100%);
+}
+.units-mark {
+  position: absolute;
+  left: var(--x);
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 10px;
+  line-height: 1.25;
+  color: var(--ink-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.units-mark b { font-size: 11px; font-weight: 500; color: var(--ink); }
+.units-mark::after { content: ""; width: 1px; height: 8px; margin-top: 3px; background: var(--ink-2); }
+.units-mark:first-child { transform: translateX(-85%); }
+.units-mark:last-child { transform: translateX(-15%); }
+.units-scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--ink-3); }
+.g-benefits .ic[style*="--ic"] { color: var(--ic); text-shadow: 0 0 8px var(--ic); font-size: 12px; }
+.g-benefits .icon-list { margin-bottom: 16px; }

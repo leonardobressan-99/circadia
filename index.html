@@ -18,7 +18,7 @@
   <link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
   <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="icon-180.png">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body data-view="light">
   <div class="ambient" aria-hidden="true"></div>
@@ -129,6 +129,33 @@
           <div class="light-type"><i style="--c:#ff5200"></i><b>Amber</b><small>≈ 600 nm · evening</small><span>A warmer, slightly brighter glow for reading or relaxing, still very low in blue.</span></div>
           <div class="light-type"><i style="--c:#ffd27a"></i><b>Morning sun</b><small>≈ 5500 K · morning</small><span>Bright, daylight-coloured light to help you feel awake and start your routine.</span></div>
         </div>
+      </article>
+
+      <!-- What nm / K mean -->
+      <article class="card glass g-units">
+        <h2>What do "nm" and "K" mean?</h2>
+        <p><em>nm</em> stands for <em>nanometre</em>, one millionth of a millimetre. Light travels as a wave, and the length of that wave (the <em>wavelength</em>) decides its colour. Your eyes see roughly 400 nm (violet) to 700 nm (deep red); beyond about 700 nm is invisible near-infrared.</p>
+        <figure class="figure units-figure" role="img" aria-label="Visible spectrum from 400 to 700 nanometres, with Amber marked at about 600 and Deep red at about 625.">
+          <div class="units-bar">
+            <span class="units-mark" style="--x:66.7%"><b>Amber</b>≈ 600</span>
+            <span class="units-mark" style="--x:75%"><b>Deep red</b>≈ 625</span>
+          </div>
+          <div class="units-scale"><span>400 violet</span><span>500 green</span><span>600 orange</span><span>700 nm red</span></div>
+        </figure>
+        <p><em>K</em> stands for <em>kelvin</em>, the "colour temperature" of white light. Low values (~2700 K) look warm like a bulb; ~5500 K looks like midday sunlight; higher values look bluish. That's why Morning sun is described in K instead of nm: white light is a mix of many wavelengths.</p>
+      </article>
+
+      <!-- Realistic benefits -->
+      <article class="card glass g-benefits">
+        <h2>What the screen light can do for you</h2>
+        <p>A phone or computer screen is a gentle light source. Here's what it can realistically help with:</p>
+        <ul class="icon-list">
+          <li><span class="ic" aria-hidden="true" style="--ic:#ff0000">●</span><div><b>Deep red · in the evening</b><span>Lets you see without the bright, blue-rich light that delays sleepiness. Keeps your night vision, so you stay calmer and fall back asleep more easily after waking at night.</span></div></li>
+          <li><span class="ic" aria-hidden="true" style="--ic:#ff5200">●</span><div><b>Amber · relaxing &amp; reading</b><span>A warm, low-blue glow that's comfortable on the eyes and signals "wind down" while still giving enough light to read or relax.</span></div></li>
+          <li><span class="ic" aria-hidden="true" style="--ic:#ffd27a">●</span><div><b>Morning sun · after waking</b><span>A bright, daylight-coloured cue that can make you feel more alert and help build a regular wake-up routine. Real daylight outside is stronger still.</span></div></li>
+          <li><span class="ic" aria-hidden="true">≋</span><div><b>Breathe mode · any time</b><span>The light rises and falls about 6 times a minute. Breathing along at that slow pace is a simple, well-studied way to feel calmer.</span></div></li>
+        </ul>
+        <div class="fact pen-you"><b>What it can't do</b><span>A screen is about 100× too weak and has no near-infrared, so it won't give the skin, muscle or pain effects studied with red light therapy panels, or replace a 10,000 lux light box.</span></div>
       </article>
 
       <!-- Morning light -->
@@ -469,6 +496,6 @@
     <form method="dialog"><button class="primary" type="submit">I understand</button></form>
   </dialog>
 
-  <script src="app.js?v=31"></script>
+  <script src="app.js?v=34"></script>
 </body>
 </html>
